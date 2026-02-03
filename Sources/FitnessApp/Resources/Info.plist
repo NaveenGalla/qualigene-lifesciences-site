@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>NSHealthShareUsageDescription</key>
+    <string>We use Health data to populate your sleep, workouts, heart rate, recovery, water intake, and mindful session trends.</string>
+    <key>NSHealthUpdateUsageDescription</key>
+    <string>We do not write data to Health. This permission is reserved for future features.</string>
+    <key>UIBackgroundModes</key>
+    <array>
+        <string>healthkit</string>
+        <string>processing</string>
+        <string>fetch</string>
+    </array>
+    <key>BGTaskSchedulerPermittedIdentifiers</key>
+    <array>
+        <string>com.fitnessapp.sync</string>
+    </array>
+</dict>
+</plist>
