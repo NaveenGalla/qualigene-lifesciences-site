@@ -41,21 +41,21 @@ if (contactForm && formStatus) {
   contactForm.addEventListener("submit", (event) => {
     event.preventDefault();
 
-    const formData = new FormData(contactForm);
-    const name = formData.get("name")?.toString().trim() || "";
-    const company = formData.get("company")?.toString().trim() || "";
-    const phone = formData.get("phone")?.toString().trim() || "";
-    const email = formData.get("email")?.toString().trim() || "";
-    const sector = formData.get("sector")?.toString().trim() || "";
-    const message = formData.get("message")?.toString().trim() || "";
+    const data = new FormData(contactForm);
+    const name = data.get("name")?.toString().trim() || "";
+    const company = data.get("company")?.toString().trim() || "";
+    const email = data.get("email")?.toString().trim() || "";
+    const phone = data.get("phone")?.toString().trim() || "";
+    const sector = data.get("sector")?.toString().trim() || "";
+    const message = data.get("message")?.toString().trim() || "";
 
-    const subject = encodeURIComponent(`Website enquiry from ${name || "Prospective customer"} - ${sector || "Qualigene"}`);
+    const subject = encodeURIComponent(`Qualigene website enquiry - ${sector || "General"}`);
     const body = encodeURIComponent(
       [
         `Name: ${name}`,
         `Company / Farm: ${company}`,
-        `Phone: ${phone}`,
         `Email: ${email}`,
+        `Phone: ${phone}`,
         `Sector: ${sector}`,
         "",
         "Requirement:",
@@ -64,6 +64,6 @@ if (contactForm && formStatus) {
     );
 
     window.location.href = `mailto:info@Qualigene.com?subject=${subject}&body=${body}`;
-    formStatus.textContent = "Your enquiry email draft is ready. Review it and send when you’re happy.";
+    formStatus.textContent = "Your enquiry email draft is ready. Review it and send when you are happy.";
   });
 }
