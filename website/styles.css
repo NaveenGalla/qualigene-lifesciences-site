@@ -1,4 +1,5 @@
 :root {
+  /* ── Colour tokens ── */
   --bg: #eef8ff;
   --surface: rgba(255, 255, 255, 0.82);
   --surface-strong: #ffffff;
@@ -10,12 +11,21 @@
   --sky: #1fa9e2;
   --sky-soft: #dbf4ff;
   --navy: #072c4d;
+
+  /* ── Shadow & radius ── */
   --shadow: 0 28px 80px rgba(13, 103, 167, 0.14);
+  --shadow-lift: 0 52px 100px rgba(13, 103, 167, 0.26);
   --radius-xl: 36px;
   --radius-lg: 28px;
   --radius-md: 22px;
   --radius-sm: 16px;
+
+  /* ── Layout ── */
   --shell: min(1200px, calc(100vw - 2rem));
+
+  /* ── Easing ── */
+  --ease-fluid: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-spring: cubic-bezier(0.34, 1.4, 0.64, 1);
 }
 
 * {
@@ -130,7 +140,16 @@ textarea {
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.16em;
-  color: var(--sky);
+  background: linear-gradient(90deg,
+    var(--sky) 0%,
+    var(--brand) 40%,
+    var(--sky) 70%,
+    var(--brand) 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: water-sweep 5s linear infinite;
 }
 
 h1,
@@ -192,7 +211,9 @@ h1 {
   border: 0;
   border-radius: 999px;
   font-weight: 800;
-  transition: transform 180ms ease, box-shadow 180ms ease;
+  position: relative;
+  overflow: hidden;
+  transition: transform 180ms var(--ease-fluid), box-shadow 180ms var(--ease-fluid);
 }
 
 .button:hover,
@@ -204,6 +225,22 @@ h1 {
   color: white;
   background: linear-gradient(135deg, var(--brand) 0%, var(--sky) 100%);
   box-shadow: 0 18px 36px rgba(13, 103, 167, 0.26);
+}
+
+.button-primary::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(255, 255, 255, 0.22) 0%, rgba(255, 255, 255, 0.04) 100%);
+  transform: translateY(100%);
+  transition: transform 480ms var(--ease-fluid);
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.button-primary:hover::before,
+.button-primary:focus-visible::before {
+  transform: translateY(0);
 }
 
 .button-secondary {
@@ -376,6 +413,12 @@ h1 {
 .trust-strip {
   margin-top: 0.8rem;
   padding: 1.2rem 1.4rem;
+  background: linear-gradient(135deg,
+    rgba(255,255,255,0.88) 0%,
+    rgba(219, 244, 255, 0.88) 50%,
+    rgba(255,255,255,0.88) 100%);
+  background-size: 200% auto;
+  animation: water-sweep 6s ease-in-out infinite;
 }
 
 .section {
@@ -846,13 +889,14 @@ h1 {
 
 .reveal {
   opacity: 0;
-  transform: translateY(22px);
-  transition: opacity 650ms ease, transform 650ms ease;
+  transform: translateY(30px) scale(0.97);
+  transition: opacity 700ms var(--ease-fluid),
+              transform 700ms var(--ease-fluid);
 }
 
 .reveal.is-visible {
   opacity: 1;
-  transform: translateY(0);
+  transform: translateY(0) scale(1);
 }
 
 @media (max-width: 1080px) {
@@ -961,6 +1005,17 @@ h1 {
   .button {
     transition: none;
   }
+
+  .eyebrow,
+  .trust-strip,
+  .hero-wrapper::after {
+    animation: none;
+    background-position: 0% 50%;
+  }
+
+  .button-primary::before {
+    transition: none;
+  }
 }
 
 /* ======================================================
@@ -984,10 +1039,28 @@ h1 {
   66%       { transform: translate(-9px, 7px) scale(0.94); }
 }
 
-@keyframes hero-bg-shimmer {
+/* ── Aqua-themed animations ── */
+
+@keyframes water-sweep {
   0%   { background-position: 0% 50%; }
   50%  { background-position: 100% 50%; }
   100% { background-position: 0% 50%; }
+}
+
+@keyframes tide-rise {
+  0%   { transform: translateY(0) scaleX(1); }
+  50%  { transform: translateY(-3px) scaleX(1.01); }
+  100% { transform: translateY(0) scaleX(1); }
+}
+
+@keyframes ripple-ring {
+  0%   { box-shadow: 0 0 0 0 rgba(31, 169, 226, 0.28); }
+  100% { box-shadow: 0 0 0 18px rgba(31, 169, 226, 0); }
+}
+
+@keyframes shimmer-line {
+  0%   { background-position: -200% center; }
+  100% { background-position: 200% center; }
 }
 
 /* ── Scrollbar ── */
@@ -1058,7 +1131,8 @@ h1 {
 }
 .product-card:hover {
   transform: translateY(-9px);
-  box-shadow: 0 52px 100px rgba(13, 103, 167, 0.26);
+  box-shadow: 0 52px 100px rgba(13, 103, 167, 0.26),
+              0 0 0 2px rgba(31, 169, 226, 0.22);
 }
 .product-card-image {
   transition: transform 600ms ease;
@@ -1122,7 +1196,8 @@ h1 {
 }
 .solution-card:hover {
   transform: translateY(-6px);
-  box-shadow: 0 44px 90px rgba(13, 103, 167, 0.22);
+  box-shadow: 0 44px 90px rgba(13, 103, 167, 0.22),
+              0 0 0 2px rgba(31, 169, 226, 0.18);
 }
 
 /* ── Reason cards ── */
@@ -1263,6 +1338,24 @@ h1 {
   overflow: hidden;
 }
 
+.hero-wrapper::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    var(--sky) 25%,
+    var(--brand) 55%,
+    var(--sky) 80%,
+    transparent 100%);
+  background-size: 200% auto;
+  animation: water-sweep 4s linear infinite;
+  pointer-events: none;
+}
+
 #hero-canvas {
   position: absolute;
   inset: 0;
@@ -1333,7 +1426,10 @@ h1 {
   .hero-panel,
   .hero-badge,
   .fluid-card::before,
-  .fluid-card::after {
+  .fluid-card::after,
+  .eyebrow,
+  .trust-strip,
+  .hero-wrapper::after {
     animation: none;
   }
 

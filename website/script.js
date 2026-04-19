@@ -69,40 +69,39 @@ window.addEventListener("load", () => {
   // Helper — check if element is inside a product page (not homepage)
   const onProductPage = !!document.querySelector(".product-hero");
 
-  // ── Section headings 3D entrance ────────────────────────────────────────────
+  // ── Section headings — float up ──────────────────────────────────────────────
   gsap.utils.toArray(".section-heading").forEach(el => {
     gsap.from(el, {
       scrollTrigger: { trigger: el, start: "top 86%", toggleActions: "play none none none" },
-      y: 70, rotationX: 30, opacity: 0, duration: 1.1,
-      ease: "power3.out", transformOrigin: "top center",
-      clearProps: "all",
+      y: 48, scale: 0.97, opacity: 0, duration: 1.05,
+      ease: "power3.out", clearProps: "all",
     });
   });
 
-  // ── Product cards ────────────────────────────────────────────────────────────
+  // ── Product cards — rise from below like surfacing ───────────────────────────
   gsap.utils.toArray(".product-showcase").forEach(grid => {
     gsap.from(grid.querySelectorAll(".product-card"), {
       scrollTrigger: { trigger: grid, start: "top 82%" },
-      y: 100, rotationY: -20, opacity: 0,
-      duration: 0.9, stagger: 0.1, ease: "power3.out", clearProps: "all",
+      y: 70, scale: 0.93, opacity: 0,
+      duration: 0.95, stagger: 0.09, ease: "power3.out", clearProps: "all",
     });
   });
 
-  // ── Solution / reason / compliance / about grids ─────────────────────────────
+  // ── Solution / reason / compliance / about grids — ripple wave stagger ────────
   gsap.utils.toArray(".solution-grid,.reason-grid,.compliance-grid,.about-grid").forEach(grid => {
     gsap.from(grid.querySelectorAll("article, .panel"), {
       scrollTrigger: { trigger: grid, start: "top 84%" },
-      y: 60, rotationX: 18, opacity: 0,
-      duration: 0.85, stagger: 0.1, ease: "power3.out", clearProps: "all",
+      y: 50, scale: 0.95, opacity: 0,
+      duration: 0.88, stagger: 0.08, ease: "power3.out", clearProps: "all",
     });
   });
 
-  // ── Gallery strip ────────────────────────────────────────────────────────────
+  // ── Gallery strip — float up sequentially like rising bubbles ────────────────
   gsap.utils.toArray(".gallery-strip").forEach(strip => {
     gsap.from(strip.querySelectorAll(".gallery-card"), {
       scrollTrigger: { trigger: strip, start: "top 84%" },
-      x: -70, rotationY: 14, opacity: 0,
-      duration: 0.85, stagger: 0.12, ease: "power3.out", clearProps: "all",
+      y: 55, scale: 0.93, opacity: 0,
+      duration: 0.88, stagger: 0.1, ease: "power3.out", clearProps: "all",
     });
   });
 
@@ -115,14 +114,12 @@ window.addEventListener("load", () => {
     });
   });
 
-  // ── Cert cards ───────────────────────────────────────────────────────────────
+  // ── Cert cards — surface up ───────────────────────────────────────────────────
   gsap.utils.toArray(".cert-grid").forEach(grid => {
     gsap.from(grid.querySelectorAll(".cert-card"), {
       scrollTrigger: { trigger: grid, start: "top 86%" },
-      x: (i) => (i % 2 === 0 ? -80 : 80),
-      rotationY: (i) => (i % 2 === 0 ? 14 : -14),
-      opacity: 0, duration: 1, stagger: 0.14,
-      ease: "power3.out", clearProps: "all",
+      y: 50, scale: 0.95, opacity: 0,
+      duration: 0.9, stagger: 0.12, ease: "power3.out", clearProps: "all",
     });
   });
 
@@ -130,16 +127,16 @@ window.addEventListener("load", () => {
   gsap.utils.toArray(".related-products").forEach(grid => {
     gsap.from(grid.querySelectorAll(".related-card"), {
       scrollTrigger: { trigger: grid, start: "top 86%" },
-      y: 60, rotationX: 12, opacity: 0,
-      duration: 0.8, stagger: 0.12, ease: "power3.out", clearProps: "all",
+      y: 50, scale: 0.95, opacity: 0,
+      duration: 0.82, stagger: 0.1, ease: "power3.out", clearProps: "all",
     });
   });
 
-  // ── Product hero visual ───────────────────────────────────────────────────────
+  // ── Product hero visual — float up from below ─────────────────────────────────
   const productHeroVis = document.querySelector(".product-hero-visual");
   if (productHeroVis) {
     gsap.from(productHeroVis, {
-      x: 80, rotationY: -20, opacity: 0, duration: 1.2,
+      y: 50, scale: 0.95, opacity: 0, duration: 1.1,
       ease: "power3.out", delay: 0.2, clearProps: "all",
     });
   }
@@ -148,16 +145,16 @@ window.addEventListener("load", () => {
   const productHeroCopy = document.querySelector(".product-hero-copy");
   if (productHeroCopy) {
     gsap.from(productHeroCopy.children, {
-      y: 40, opacity: 0, duration: 0.85, stagger: 0.1,
+      y: 36, scale: 0.97, opacity: 0, duration: 0.85, stagger: 0.1,
       ease: "power3.out", delay: 0.1, clearProps: "all",
     });
   }
 
-  // ── Hero copy (homepage) ─────────────────────────────────────────────────────
+  // ── Hero copy (homepage) — tide in from below ─────────────────────────────────
   const heroCopy = document.querySelector(".hero-copy");
   if (heroCopy && !onProductPage) {
     gsap.from(heroCopy.children, {
-      y: 50, opacity: 0, duration: 0.9, stagger: 0.12,
+      y: 44, scale: 0.97, opacity: 0, duration: 0.92, stagger: 0.11,
       ease: "power3.out", delay: 0.3, clearProps: "all",
     });
   }

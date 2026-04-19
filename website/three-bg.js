@@ -5,128 +5,124 @@
   const W = () => canvas.parentElement.offsetWidth;
   const H = () => canvas.parentElement.offsetHeight;
 
-  const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: false });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
   renderer.setSize(W(), H());
 
-  const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(60, W() / H(), 0.1, 100);
-  camera.position.set(0, 0, 7);
+  const scene  = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(55, W() / H(), 0.1, 100);
+  camera.position.set(0, 0, 8);
 
-  const PALETTE = [0x1fa9e2, 0x0d67a7, 0x48c7f9, 0xffffff, 0x065a94, 0x2dd4f8];
+  // ── Animated wave surface ────────────────────────────────────────────────
+  const wGeo = new THREE.PlaneGeometry(32, 20, 52, 32);
+  wGeo.rotateX(-Math.PI * 0.34);
+  const wMat = new THREE.MeshBasicMaterial({
+    color: 0x1fa9e2,
+    wireframe: true,
+    transparent: true,
+    opacity: 0.075,
+  });
+  const waveMesh = new THREE.Mesh(wGeo, wMat);
+  waveMesh.position.y = -1.6;
+  scene.add(waveMesh);
 
-  // ── Particle cloud ────────────────────────────────
-  const N = 200;
-  const pos = new Float32Array(N * 3);
-  const col = new Float32Array(N * 3);
-  for (let i = 0; i < N; i++) {
-    pos[i * 3]     = (Math.random() - 0.5) * 22;
-    pos[i * 3 + 1] = (Math.random() - 0.5) * 14;
-    pos[i * 3 + 2] = (Math.random() - 0.5) * 10;
-    const c = new THREE.Color(PALETTE[Math.floor(Math.random() * PALETTE.length)]);
-    col[i * 3] = c.r; col[i * 3 + 1] = c.g; col[i * 3 + 2] = c.b;
+  // Cache original XY per vertex (Z will be displaced)
+  const wAttr = wGeo.attributes.position;
+  const wOrigX = new Float32Array(wAttr.count);
+  const wOrigY = new Float32Array(wAttr.count);
+  for (let i = 0; i < wAttr.count; i++) {
+    wOrigX[i] = wAttr.getX(i);
+    wOrigY[i] = wAttr.getY(i);
   }
-  const pGeo = new THREE.BufferGeometry();
-  pGeo.setAttribute("position", new THREE.BufferAttribute(pos, 3));
-  pGeo.setAttribute("color",    new THREE.BufferAttribute(col, 3));
-  const points = new THREE.Points(pGeo, new THREE.PointsMaterial({
-    size: 0.05, vertexColors: true, transparent: true, opacity: 0.6, sizeAttenuation: true,
-  }));
-  scene.add(points);
 
-  // ── Floating wireframe geometry ──────────────────
-  const GEO = [
-    new THREE.IcosahedronGeometry(0.22, 0),
-    new THREE.OctahedronGeometry(0.19, 0),
-    new THREE.TetrahedronGeometry(0.17, 0),
-    new THREE.IcosahedronGeometry(0.15, 1),
+  // ── Rising bubble particles ──────────────────────────────────────────────
+  const NB = 110;
+  const bx     = new Float32Array(NB);
+  const by     = new Float32Array(NB);
+  const bz     = new Float32Array(NB);
+  const bspeed = new Float32Array(NB);
+  const bphase = new Float32Array(NB);
+  const bcolor = new Float32Array(NB * 3);
+
+  const AQUA = [
+    new THREE.Color(0x48c7f9),
+    new THREE.Color(0x1fa9e2),
+    new THREE.Color(0x0d67a7),
+    new THREE.Color(0xb8eeff),
+    new THREE.Color(0x2dd4f8),
   ];
 
-  const floaters = Array.from({ length: 16 }, (_, i) => {
-    const mesh = new THREE.Mesh(
-      GEO[i % GEO.length].clone(),
-      new THREE.MeshBasicMaterial({
-        color: PALETTE[Math.floor(Math.random() * PALETTE.length)],
-        wireframe: true,
-        transparent: true,
-        opacity: 0.28 + Math.random() * 0.16,
-      })
-    );
-    mesh.position.set(
-      (Math.random() - 0.5) * 18,
-      (Math.random() - 0.5) * 11,
-      (Math.random() - 0.5) * 8
-    );
-    mesh.userData = {
-      rx: (Math.random() - 0.5) * 0.013,
-      ry: (Math.random() - 0.5) * 0.013,
-      fs: 0.002 + Math.random() * 0.005,
-      fo: Math.random() * Math.PI * 2,
-    };
-    scene.add(mesh);
-    return mesh;
-  });
-
-  // ── Connection lines between close particles ──────
-  const lineMat = new THREE.LineBasicMaterial({ color: 0x1fa9e2, transparent: true, opacity: 0.08 });
-  const lineGroup = new THREE.Group();
-  scene.add(lineGroup);
-
-  function rebuildLines() {
-    while (lineGroup.children.length) lineGroup.remove(lineGroup.children[0]);
-    const pts = pGeo.attributes.position.array;
-    for (let i = 0; i < N; i++) {
-      for (let j = i + 1; j < N; j++) {
-        const dx = pts[i*3]   - pts[j*3];
-        const dy = pts[i*3+1] - pts[j*3+1];
-        const dz = pts[i*3+2] - pts[j*3+2];
-        const dist = Math.sqrt(dx*dx + dy*dy + dz*dz);
-        if (dist < 3.2) {
-          const geo = new THREE.BufferGeometry().setFromPoints([
-            new THREE.Vector3(pts[i*3], pts[i*3+1], pts[i*3+2]),
-            new THREE.Vector3(pts[j*3], pts[j*3+1], pts[j*3+2]),
-          ]);
-          lineGroup.add(new THREE.Line(geo, lineMat));
-        }
-      }
-    }
+  function initBubble(i, scattered) {
+    bx[i]     = (Math.random() - 0.5) * 22;
+    by[i]     = scattered ? (Math.random() - 0.5) * 18 : -10 - Math.random() * 5;
+    bz[i]     = (Math.random() - 0.5) * 8;
+    bspeed[i] = 0.016 + Math.random() * 0.032;
+    bphase[i] = Math.random() * Math.PI * 2;
+    const c   = AQUA[Math.floor(Math.random() * AQUA.length)];
+    bcolor[i * 3] = c.r; bcolor[i * 3 + 1] = c.g; bcolor[i * 3 + 2] = c.b;
   }
-  rebuildLines();
 
-  // ── Mouse ─────────────────────────────────────────
+  for (let i = 0; i < NB; i++) initBubble(i, true);
+
+  const bPosArr = new Float32Array(NB * 3);
+  const bGeo   = new THREE.BufferGeometry();
+  bGeo.setAttribute("position", new THREE.BufferAttribute(bPosArr, 3));
+  bGeo.setAttribute("color",    new THREE.BufferAttribute(bcolor,  3));
+
+  scene.add(new THREE.Points(bGeo, new THREE.PointsMaterial({
+    size: 0.11,
+    vertexColors: true,
+    transparent: true,
+    opacity: 0.48,
+    sizeAttenuation: true,
+  })));
+
+  // ── Mouse parallax ───────────────────────────────────────────────────────
   let mx = 0, my = 0;
   document.addEventListener("mousemove", e => {
     mx = (e.clientX / window.innerWidth  - 0.5) * 2;
     my = (e.clientY / window.innerHeight - 0.5) * 2;
-  });
+  }, { passive: true });
 
-  // ── Resize ────────────────────────────────────────
+  // ── Resize ───────────────────────────────────────────────────────────────
   window.addEventListener("resize", () => {
     renderer.setSize(W(), H());
     camera.aspect = W() / H();
     camera.updateProjectionMatrix();
-  });
+  }, { passive: true });
 
-  // ── Animate ───────────────────────────────────────
+  // ── Render loop ──────────────────────────────────────────────────────────
   let t = 0;
   (function tick() {
     requestAnimationFrame(tick);
-    t += 0.008;
+    t += 0.007;
 
-    points.rotation.y = t * 0.03;
-    points.rotation.x = t * 0.015;
-    lineGroup.rotation.y = t * 0.03;
-    lineGroup.rotation.x = t * 0.015;
+    // Displace wave vertices along Z with overlapping sine waves
+    for (let i = 0; i < wAttr.count; i++) {
+      const ox = wOrigX[i], oy = wOrigY[i];
+      wAttr.setZ(i,
+        Math.sin(ox * 0.44 + t * 1.1)  * 0.34 +
+        Math.sin(oy * 0.37 + t * 0.82) * 0.22 +
+        Math.sin((ox - oy) * 0.27 + t * 0.63) * 0.16
+      );
+    }
+    wAttr.needsUpdate = true;
 
-    floaters.forEach(f => {
-      f.rotation.x += f.userData.rx;
-      f.rotation.y += f.userData.ry;
-      f.position.y += Math.sin(t * f.userData.fs + f.userData.fo) * 0.004;
-    });
+    // Rise and sway bubbles
+    for (let i = 0; i < NB; i++) {
+      by[i] += bspeed[i];
+      bx[i] += Math.sin(t * 0.68 + bphase[i]) * 0.006;
+      if (by[i] > 10) initBubble(i, false);
+      bPosArr[i * 3]     = bx[i];
+      bPosArr[i * 3 + 1] = by[i];
+      bPosArr[i * 3 + 2] = bz[i];
+    }
+    bGeo.attributes.position.needsUpdate = true;
 
-    camera.position.x += (mx * 0.7 - camera.position.x) * 0.035;
-    camera.position.y += (-my * 0.4 - camera.position.y) * 0.035;
-    camera.lookAt(scene.position);
+    // Smooth camera mouse parallax
+    camera.position.x += (mx * 0.55  - camera.position.x) * 0.026;
+    camera.position.y += (-my * 0.28 - camera.position.y) * 0.026;
+    camera.lookAt(0, 0, 0);
 
     renderer.render(scene, camera);
   })();
